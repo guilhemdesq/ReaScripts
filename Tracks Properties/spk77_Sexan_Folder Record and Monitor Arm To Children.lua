@@ -1,16 +1,16 @@
 --[[
- * ReaScript Name: Folder Record/Monitor Arming Childs
+ * ReaScript Name: Folder Record_Monitor Arming Childs
  * Author: SPK77, SeXan
  * Licence: GPL v3
  * REAPER: 5.0
  * Extensions: None
- * Version: 1.0
+ * Version: 1.01
 --]]
  
 --[[
  * Changelog:
- * v1.0 (2016-04-27)
-	+ Initial Release
+ * v1.01 (2017-07-13)
+  + Initial Release
 --]]
 
 
@@ -51,18 +51,18 @@ function on_rec_arm_change(track_pointer, track_index)
   for i = track_index + 1, reaper.CountTracks(0) do
     local child_track = reaper.GetTrack(0, i-1)
     
-    if last_a ==  "Toggle Track Record Arming" then
+    if last_a ==  "Toggle track record arming" then
        reaper.SetMediaTrackInfo_Value(child_track, "I_RECARM", parent_rec_arm) -- set track armed as folder
        local ret, child_state = reaper.GetTrackState(child_track) 
-	   local child_input = reaper.GetMediaTrackInfo_Value(child_track,"I_RECINPUT")
+     local child_input = reaper.GetMediaTrackInfo_Value(child_track,"I_RECINPUT")
        
         if child_state&1 == 1 then -- if track is a folder
          if child_state&64 == 64 then -- if folder is rec-armed
-			if child_input >= 0 then
-				t[i]=reaper.GetMediaTrackInfo_Value(child_track,"I_RECINPUT") -- add folder input to table
-				reaper.SetMediaTrackInfo_Value(child_track, "I_RECINPUT", -1) -- disable folder input (avoid double monitoring issue)
-			end
-		 else      
+      if child_input >= 0 then
+        t[i]=reaper.GetMediaTrackInfo_Value(child_track,"I_RECINPUT") -- add folder input to table
+        reaper.SetMediaTrackInfo_Value(child_track, "I_RECINPUT", -1) -- disable folder input (avoid double monitoring issue)
+      end
+     else      
            for k,v in pairs(t) do
             local track_from_key = reaper.CSurf_TrackFromID(k, false) -- convert track number to track code
             local ret, k_state = reaper.GetTrackState(track_from_key)
@@ -74,7 +74,7 @@ function on_rec_arm_change(track_pointer, track_index)
          end     
         end       
  
-    elseif last_a == "Toggle Track Recording Monitor" then
+    elseif last_a == "Toggle track recording monitor" then
            reaper.SetMediaTrackInfo_Value(child_track, "I_RECMON", parent_mon_arm) -- set monitor arm
     end   
     
@@ -87,9 +87,6 @@ function on_rec_arm_change(track_pointer, track_index)
   reaper.UpdateArrange()                -- update arrange view
   reaper.TrackList_AdjustWindows(false) -- update tracklist
 end
-
-
-
 -----------------------------
 -- on_project_state_change --
 -----------------------------
@@ -98,7 +95,7 @@ end
 function on_project_state_change(last_action)
   last_a = last_action
   -- if last action (that changed the project state) was "Toggle Track Record Arming"...
-  if last_action == "Toggle Track Record Arming" or last_action == "Toggle Track Recording Monitor" then
+  if last_action == "Toggle track record arming" or last_action == "Toggle track recording monitor" then
     local last_touched_track = reaper.GetLastTouchedTrack() -- get last touched track's "track pointer"
     local last_touched_track_name, flags = reaper.GetTrackState(last_touched_track)
     local last_touched_track_index = reaper.CSurf_TrackToID(last_touched_track, false) - 1 -- get track index from "last touched track"
@@ -113,9 +110,7 @@ function on_project_state_change(last_action)
 end  
 ----------
 
-function main() 
- lt=reaper.GetLastTouchedTrack()
- lt_par= reaper.GetMediaTrackInfo_Value(lt, "I_FOLDERDEPTH")
+function main()
   local proj_change_count = reaper.GetProjectStateChangeCount(0)
   if proj_change_count > last_proj_change_count then
     local last_action = reaper.Undo_CanUndo2(0) -- get last action
